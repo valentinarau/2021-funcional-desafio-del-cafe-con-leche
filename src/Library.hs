@@ -15,7 +15,33 @@ import Prelude (foldr, sum, elem, all, Foldable(..))
 -- 
 
 lookAndSay :: [Number]
-lookAndSay = implementame 
+lookAndSay = 1:map(lookAndSay'n [1]) [1,2..]
+
+lookAndSay'n :: [Number] -> Number -> Number
+lookAndSay'n lista 0  = unirNumeros lista
+lookAndSay'n lista n  = lookAndSay'n (listarRepetidos lista) (n-1)
+
+listarRepetidos :: [Number]->[Number]
+listarRepetidos [] = []
+listarRepetidos lista = numeroSeRepite (nVeces lista) lista ++ listarRepetidos ( notTake (nVeces lista) lista)
+
+nVeces :: [Number]->Number
+nVeces [x] = 1
+nVeces (x:y:resto)
+  |x == y = 1 + nVeces (y:resto)
+  |otherwise = 1
+
+numeroSeRepite :: Number->[Number]->[Number]
+numeroSeRepite n lista = n:take 1 lista
+
+unirNumeros :: [Number] -> Number
+unirNumeros [x] = x
+unirNumeros (x:y:resto) = unirNumeros(x*10+y:resto)
+
+notTake :: Number -> [Number] -> [Number]
+notTake 0 lista = lista
+notTake _ [] = []
+notTake n (x:resto) = notTake (n-1) resto
 
 --------------------------------------------------------------------
 
@@ -63,4 +89,10 @@ otroArbol = RoseTree 5 [RoseTree 2 [RoseTree 10 [],
 -- Y algo interesante es que al implementar el foldr algunas funciones (como sum, all, any y elem)
 -- las vamos a tener "gratis" para este tipo.
 instance Foldable RoseTree where
-  foldr = implementame
+foldr func seed (RoseTree a branches) = (func a.funcFoldr func  branches) seed
+
+funcFoldr ::( a-> b -> b) -> [RoseTree a] -> b -> b
+funcFoldr func [] = id
+funcFoldr func [RoseTree a []] = func a
+funcFoldr func (RoseTree b branch: branches) = func b.funcFoldr func branch.funcFoldr func branches
+
